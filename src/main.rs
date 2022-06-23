@@ -4,6 +4,8 @@ use piston_window::*;
 mod utils;
 use utils::*;
 
+mod object;
+
 mod character;
 use character::*;
 
@@ -49,12 +51,12 @@ impl App {
             // draw the enemies
             for e in &self.enemies {
                 Image::new()
-                    .rect(graphics::rectangle::square(e.pos.x, e.pos.y, e.size))
+                    .rect(graphics::rectangle::square(e.object.pos.x, e.object.pos.y, e.object.size))
                     .draw(&self.enemy_texture, &graphics::DrawState::default(), c.transform, g);
             }
             // draw us
             Image::new()
-                .rect(graphics::rectangle::square(self.player.pos.x, self.player.pos.y, self.player.size))
+                .rect(graphics::rectangle::square(self.player.object.pos.x, self.player.object.pos.y, self.player.object.size))
                 .draw(&self.texture, &graphics::DrawState::default(), c.transform, g);
         });
     }
