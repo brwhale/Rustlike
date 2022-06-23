@@ -1,19 +1,13 @@
-use opengl_graphics::{GlGraphics, OpenGL};
-use piston_window::{Graphics, Button, PistonWindow, EventSettings, RenderEvent, UpdateEvent, Events, UpdateArgs, WindowSettings, RenderArgs};
-use piston::input::*;
+use opengl_graphics::{GlGraphics, OpenGL, Texture};
+use piston_window::*;
 
 mod utils;
 use utils::*;
-
-mod drawing;
-use drawing::*;
 
 mod character;
 use character::*;
 
 const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
-const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
 
 // container for the game data
 struct App {
@@ -24,17 +18,24 @@ struct App {
     player: Character,
     enemies: Vec<Character>,
     cursor: Vec2,
+    texture: Texture,
+    enemy_texture: Texture,
 }
 
 impl App {
     fn new(g: GlGraphics) -> App {
+        //A texture to use with the image
+        let tex = Texture::from_path(std::path::Path::new("Resources/player.png"), &TextureSettings::new()).unwrap();
+        let entex = Texture::from_path(std::path::Path::new("Resources/enemy.png"), &TextureSettings::new()).unwrap();
         App { 
             gl: g, 
             running: true, 
             keys: Map::new(), 
             player: Character::new(), 
             enemies: Vec::new(), 
-            cursor: Vec2::new() 
+            cursor: Vec2::new(),
+            texture: tex,
+            enemy_texture: entex,
         }
     }
 
@@ -44,20 +45,14 @@ impl App {
             g.clear_color(BLACK);
             // draw the enemies
             for e in &self.enemies {
-                g.draw_rectangle([
-                    e.pos.x, 
-                    e.pos.y,
-                    e.size,
-                    e.size
-                    ], RED, &c);
+                Image::new()
+                    .rect(graphics::rectangle::square(e.pos.x, e.pos.y, e.size))
+                    .draw(&self.enemy_texture, &graphics::DrawState::default(), c.transform, g);
             }
             // draw us
-            g.draw_rectangle([
-                self.player.pos.x, 
-                self.player.pos.y, 
-                self.player.size,
-                self.player.size
-                ], WHITE, &c);
+            Image::new()
+                .rect(graphics::rectangle::square(self.player.pos.x, self.player.pos.y, self.player.size))
+                .draw(&self.texture, &graphics::DrawState::default(), c.transform, g);
         });
     }
 
@@ -90,7 +85,7 @@ impl App {
                     self.running = false;
                 }
             },
-            Button::Mouse(button) => println!("Pressed mouse button '{:?}'", button),
+            //Button::Mouse(button) => {},
             _ => {}
         }
     }
@@ -99,8 +94,7 @@ impl App {
     fn release_input(&mut self, args: &Button) {
         match args {
             Button::Keyboard(key) => *self.keys.index(*key) = false,
-            Button::Mouse(button) => {
-                println!("Released mouse button '{:?}'", button);
+            Button::Mouse(_button) => {
                 self.enemies.push(Character::at(self.cursor));
             },
             _ => {}
