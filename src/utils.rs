@@ -19,6 +19,10 @@ impl Vec2 {
             self.y /= len;
         }
     }
+
+    pub fn is_zero(&self) -> bool {
+        self.x == 0.0 && self.y == 0.0
+    }
 }
 
 impl ops::Add for Vec2 {

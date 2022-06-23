@@ -7,6 +7,9 @@ use utils::*;
 mod character;
 use character::*;
 
+mod physics;
+use physics::*;
+
 const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 
 // container for the game data
@@ -73,6 +76,9 @@ impl App {
         }
         movement.normalize();
         self.player.update(args.dt, movement);
+
+        // run physics sim
+        process(&mut self.player, &mut self.enemies);
     }
 
     // event handler for presses
