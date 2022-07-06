@@ -47,38 +47,55 @@ fn aabb_x(a: &Object, b: &Object) -> AABBDirection {
     }
 }
 
+fn get_collide_direction(a: &Character, b: &Character) -> AABBDirection {
+    let ytest = aabb_y(&a.object, &b.object);
+    if ytest.is_none() {
+        return AABBDirection::None;
+    }
+    let xtest = aabb_x(&a.object, &b.object);
+    if xtest.is_none() {
+        return AABBDirection::None;
+    }
+
+    if xtest.get_val() < ytest.get_val() {
+        return xtest;
+    } else {
+        return ytest;
+    }   
+}
+
+fn process_possible_collision(a: &mut Character, b: &mut Character) {
+    if !a.object.velocity.is_zero() || !b.object.velocity.is_zero() {
+        // adjust velocity for collisions
+        match get_collide_direction(a, b) {
+            AABBDirection::Left(_v) => {
+                if a.object.velocity.x < 0.0 {a.object.velocity.x = 0.0}
+                if b.object.velocity.x > 0.0 {b.object.velocity.x = 0.0}
+            },
+            AABBDirection::Right(_v) => {
+                if a.object.velocity.x > 0.0 {a.object.velocity.x = 0.0}
+                if b.object.velocity.x < 0.0 {b.object.velocity.x = 0.0}
+            },
+            AABBDirection::Down(_v) => {
+                if a.object.velocity.y < 0.0 {a.object.velocity.y = 0.0}
+                if b.object.velocity.y > 0.0 {b.object.velocity.y = 0.0}
+            },
+            AABBDirection::Up(_v) => {
+                if a.object.velocity.y > 0.0 {a.object.velocity.y = 0.0}
+                if b.object.velocity.y < 0.0 {b.object.velocity.y = 0.0}
+            },
+            _ => {},
+        }  
+    }
+}
+
 pub fn process(player: &mut Character, enemies: &mut Vec<Character>) {
     for enemy in enemies {
+        // check collision with walls
+        process_possible_collision(player, enemy);
+   
         // move enemy (enemies don't colllide with each other)
         enemy.update_apply();
-
-        // early out if player isn't moving
-        if player.object.velocity.is_zero() {
-            continue;
-        }
-        // early out if not colliding
-        let ytest = aabb_y(&player.object, &enemy.object);
-        if ytest.is_none() {
-            continue;
-        }
-        let xtest = aabb_x(&player.object, &enemy.object);
-        if xtest.is_none() {
-            continue;
-        }
-        // adjust velocity for collisions
-        if xtest.get_val() < ytest.get_val() {
-            match xtest {
-                AABBDirection::Left(_v) => if player.object.velocity.x < 0.0 {player.object.velocity.x = 0.0},
-                AABBDirection::Right(_v) => if player.object.velocity.x > 0.0 {player.object.velocity.x = 0.0},
-                _ => {},
-            }
-        } else {
-            match ytest {
-                AABBDirection::Down(_v) => if player.object.velocity.y < 0.0 {player.object.velocity.y = 0.0},
-                AABBDirection::Up(_v) => if player.object.velocity.y > 0.0 {player.object.velocity.y = 0.0},
-                _ => {},
-            }
-        }    
     }
 
     // finally move player

@@ -14,6 +14,13 @@ use physics::*;
 
 const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 
+fn get_texture(path: &str) -> Texture {
+    Texture::from_path(
+        std::path::Path::new(path),
+        &TextureSettings::new()
+    ).unwrap()
+}
+
 // container for the game data
 struct App {
     pub(crate) gl: GlGraphics,
@@ -29,9 +36,6 @@ struct App {
 
 impl App {
     fn new(g: GlGraphics) -> App {
-        //A texture to use with the image
-        let tex = Texture::from_path(std::path::Path::new("Resources/player.png"), &TextureSettings::new()).unwrap();
-        let entex = Texture::from_path(std::path::Path::new("Resources/enemy.png"), &TextureSettings::new()).unwrap();
         App { 
             gl: g, 
             running: true, 
@@ -39,8 +43,8 @@ impl App {
             player: Character::new(), 
             enemies: Vec::new(), 
             cursor: Vec2::new(),
-            texture: tex,
-            enemy_texture: entex,
+            texture: get_texture("Resources/player.png"),
+            enemy_texture: get_texture("Resources/enemy.png"),
         }
     }
 
