@@ -1,4 +1,4 @@
-use opengl_graphics::{GlGraphics, OpenGL, Texture};
+use opengl_graphics::{GlGraphics, OpenGL};
 use piston_window::*;
 
 mod utils;
@@ -12,57 +12,29 @@ use character::*;
 mod physics;
 use physics::*;
 
-const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-
-fn get_texture(path: &str) -> Texture {
-    Texture::from_path(
-        std::path::Path::new(path),
-        &TextureSettings::new()
-    ).unwrap()
-}
+mod render;
+use render::*;
 
 // container for the game data
 struct App {
-    pub(crate) gl: GlGraphics,
-
     running: bool,
     keys: Map<Key, bool>,
     player: Character,
     enemies: Vec<Character>,
     cursor: Vec2,
-    texture: Texture,
-    enemy_texture: Texture,
+    renderer: Renderer,
 }
 
 impl App {
     fn new(g: GlGraphics) -> App {
         App { 
-            gl: g, 
             running: true, 
             keys: Map::new(), 
             player: Character::new(), 
             enemies: Vec::new(), 
             cursor: Vec2::new(),
-            texture: get_texture("Resources/player.png"),
-            enemy_texture: get_texture("Resources/enemy.png"),
+            renderer: Renderer::new(g),
         }
-    }
-
-    // our main drawing function
-    fn render(&mut self, args: &RenderArgs) {
-        self.gl.draw(args.viewport(), |c, g| {
-            g.clear_color(BLACK);
-            // draw the enemies
-            for e in &self.enemies {
-                Image::new()
-                    .rect(graphics::rectangle::square(e.object.pos.x, e.object.pos.y, e.object.size))
-                    .draw(&self.enemy_texture, &graphics::DrawState::default(), c.transform, g);
-            }
-            // draw us
-            Image::new()
-                .rect(graphics::rectangle::square(self.player.object.pos.x, self.player.object.pos.y, self.player.object.size))
-                .draw(&self.texture, &graphics::DrawState::default(), c.transform, g);
-        });
     }
 
     // run the game loop
@@ -121,7 +93,7 @@ fn run_loop(app: &mut App, w: &mut PistonWindow) {
         if let Some(args) = e.update_args() {
             app.update(&args);
         } else if let Some(args) = e.render_args() {
-            app.render(&args);
+            app.renderer.render(&args, &app.player, &app.enemies);
         } else if let Some(args) = e.press_args() {
             app.press_input(&args);
         } else if let Some(args) = e.release_args() {

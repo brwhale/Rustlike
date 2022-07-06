@@ -20,12 +20,12 @@ impl Object {
 
     // per frame update
     pub fn update(&mut self, time: f64, movement: Vec2) {
-        let speed = 100.0 * time;
-        self.velocity = movement * speed;
+        let speed = 20.0 * time;
+        self.velocity += movement * speed;
     }
 
     pub fn apply_update(&mut self) {
         self.pos += self.velocity;
-        self.velocity = Vec2::new();
+        self.velocity *= 0.95;
     }
 }
