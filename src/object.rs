@@ -4,7 +4,6 @@ pub struct Object {
     pub pos: Vec2,
     pub velocity: Vec2,
     pub size: f64,
-    //pub textureId: i32,
 }
 
 impl Object {
