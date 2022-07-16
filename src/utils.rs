@@ -12,16 +12,28 @@ impl Vec2 {
         Vec2{x: 0.0, y: 0.0}
     }
 
+    pub fn length(&self) -> f64 {
+        (self.x*self.x + self.y*self.y).sqrt()
+    }
+
+    pub fn is_zero(&self) -> bool {
+        self.x == 0.0 && self.y == 0.0
+    }
+
     pub fn normalize(&mut self) {
-        let len = (self.x*self.x + self.y*self.y).sqrt();
-        if len != 0.0 {
+        if !self.is_zero() {
+            let len = self.length();
             self.x /= len;
             self.y /= len;
         }
     }
 
-    pub fn is_zero(&self) -> bool {
-        self.x == 0.0 && self.y == 0.0
+    pub fn normalized(&self) -> Vec2 {
+        if !self.is_zero() {
+            let len = self.length();
+            return Vec2{x:self.x / len, y: self.y / len};
+        }
+        return Vec2::new();
     }
 }
 

@@ -28,7 +28,7 @@ impl AABBDirection {
 }
 
 fn aabb_y(a: &Object, b: &Object) -> AABBDirection {
-    if a.pos.y >= b.pos.y && a.pos.y <= b.pos.y+b.size {
+    if a.pos.y > b.pos.y && a.pos.y < b.pos.y+b.size {
         return AABBDirection::Down(b.pos.y+b.size - a.pos.y);
     } else if b.pos.y > a.pos.y && b.pos.y < a.pos.y+a.size {
         return AABBDirection::Up(a.pos.y+a.size - b.pos.y);
@@ -38,7 +38,7 @@ fn aabb_y(a: &Object, b: &Object) -> AABBDirection {
 }
 
 fn aabb_x(a: &Object, b: &Object) -> AABBDirection {
-    if a.pos.x >= b.pos.x && a.pos.x <= b.pos.x+b.size {
+    if a.pos.x > b.pos.x && a.pos.x < b.pos.x+b.size {
         return AABBDirection::Left(b.pos.x+b.size - a.pos.x);
     } else if b.pos.x > a.pos.x && b.pos.x < a.pos.x+a.size {
         return AABBDirection::Right(a.pos.x+a.size - b.pos.x);
@@ -47,12 +47,12 @@ fn aabb_x(a: &Object, b: &Object) -> AABBDirection {
     }
 }
 
-fn get_collide_direction(a: &Character, b: &Character) -> AABBDirection {
-    let ytest = aabb_y(&a.object, &b.object);
+fn get_collide_direction(a: &Object, b: &Object) -> AABBDirection {
+    let ytest = aabb_y(&a, &b);
     if ytest.is_none() {
         return AABBDirection::None;
     }
-    let xtest = aabb_x(&a.object, &b.object);
+    let xtest = aabb_x(&a, &b);
     if xtest.is_none() {
         return AABBDirection::None;
     }
@@ -64,35 +64,65 @@ fn get_collide_direction(a: &Character, b: &Character) -> AABBDirection {
     }   
 }
 
-fn process_possible_collision(a: &mut Character, b: &mut Character) {
-    if !a.object.velocity.is_zero() || !b.object.velocity.is_zero() {
+fn process_possible_collision(a: &mut Object, b: &mut Object) {
+    if !a.velocity.is_zero() || !b.velocity.is_zero() {
         // adjust velocity for collisions
         match get_collide_direction(a, b) {
             AABBDirection::Left(_v) => {
-                if a.object.velocity.x < 0.0 {a.object.velocity.x = 0.0}
-                if b.object.velocity.x > 0.0 {b.object.velocity.x = 0.0}
+                if a.velocity.x < 0.0 {a.velocity.x = 0.0}
+                if b.velocity.x > 0.0 {b.velocity.x = 0.0}
             },
             AABBDirection::Right(_v) => {
-                if a.object.velocity.x > 0.0 {a.object.velocity.x = 0.0}
-                if b.object.velocity.x < 0.0 {b.object.velocity.x = 0.0}
+                if a.velocity.x > 0.0 {a.velocity.x = 0.0}
+                if b.velocity.x < 0.0 {b.velocity.x = 0.0}
             },
             AABBDirection::Down(_v) => {
-                if a.object.velocity.y < 0.0 {a.object.velocity.y = 0.0}
-                if b.object.velocity.y > 0.0 {b.object.velocity.y = 0.0}
+                if a.velocity.y < 0.0 {a.velocity.y = 0.0}
+                if b.velocity.y > 0.0 {b.velocity.y = 0.0}
             },
             AABBDirection::Up(_v) => {
-                if a.object.velocity.y > 0.0 {a.object.velocity.y = 0.0}
-                if b.object.velocity.y < 0.0 {b.object.velocity.y = 0.0}
+                if a.velocity.y > 0.0 {a.velocity.y = 0.0}
+                if b.velocity.y < 0.0 {b.velocity.y = 0.0}
             },
             _ => {},
         }  
     }
 }
 
-pub fn process(player: &mut Character, enemies: &mut Vec<Character>) {
-    for enemy in enemies {
+fn process_possible_static_collision(a: &mut Object, b: &Object) {
+    const PUSH_OUT_AMMOUNT: f64 = 0.1;
+    if !a.velocity.is_zero() || !b.velocity.is_zero() {
+        // adjust velocity for collisions
+        match get_collide_direction(a, b) {
+            AABBDirection::Left(_v) => {
+                if a.velocity.x < 0.0 {a.velocity.x = 0.0; a.pos.x += PUSH_OUT_AMMOUNT;}
+            },
+            AABBDirection::Right(_v) => {
+                if a.velocity.x > 0.0 {a.velocity.x = 0.0; a.pos.x -= PUSH_OUT_AMMOUNT;}
+            },
+            AABBDirection::Down(_v) => {
+                if a.velocity.y < 0.0 {a.velocity.y = 0.0; a.pos.y += PUSH_OUT_AMMOUNT;}
+            },
+            AABBDirection::Up(_v) => {
+                if a.velocity.y > 0.0 {a.velocity.y = 0.0; a.pos.y -= PUSH_OUT_AMMOUNT;}
+            },
+            _ => {},
+        }  
+    }
+}
+
+pub fn process(player: &mut Character, enemies: &mut Vec<Character>, walls: &Vec<Object>) {
+    for wall in walls {
         // check collision with walls
-        process_possible_collision(player, enemy);
+        process_possible_static_collision(&mut player.object, wall);
+        for enemy in &mut *enemies {
+            process_possible_static_collision(&mut enemy.object, wall);
+        }
+    }
+
+    for enemy in enemies {
+        // check collision with enemies
+        process_possible_collision(&mut player.object, &mut enemy.object);
    
         // move enemy (enemies don't colllide with each other)
         enemy.update_apply();

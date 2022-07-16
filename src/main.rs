@@ -5,9 +5,13 @@ mod utils;
 use utils::*;
 
 mod object;
+use object::*;
 
 mod character;
 use character::*;
+
+mod level;
+use level::*;
 
 mod physics;
 use physics::*;
@@ -23,6 +27,7 @@ struct App {
     running: bool,
     player: Character,
     enemies: Vec<Character>,
+    walls: Vec<Object>,
     renderer: Renderer,
     inputs: Inputs,
 }
@@ -33,6 +38,7 @@ impl App {
             running: true, 
             player: Character::new(), 
             enemies: Vec::new(), 
+            walls: get_wall_layout(0),
             renderer: Renderer::new(g),
             inputs: Inputs::new(),
         }
@@ -50,7 +56,7 @@ impl App {
         self.player.update(args.dt, self.inputs.get_movement());
 
         // run physics sim
-        process(&mut self.player, &mut self.enemies);
+        process(&mut self.player, &mut self.enemies, &self.walls);
     }
 }
 
@@ -61,7 +67,7 @@ fn run_loop(app: &mut App, w: &mut PistonWindow) {
         if let Some(args) = e.update_args() {
             app.update(&args);
         } else if let Some(args) = e.render_args() {
-            app.renderer.render(&args, &app.player, &app.enemies);
+            app.renderer.render(&args, &app.player, &app.enemies, &app.walls);
         } else if let Some(args) = e.press_args() {
             app.inputs.press_input(&args);
         } else if let Some(args) = e.release_args() {
@@ -71,7 +77,7 @@ fn run_loop(app: &mut App, w: &mut PistonWindow) {
             app.inputs.cursor = Vec2{x:pos[0], y:pos[1]};
         });
         if !app.running {
-            break;
+            w.set_should_close(true);
         }
     }
 }
