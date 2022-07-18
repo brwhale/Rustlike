@@ -1,4 +1,3 @@
-
 use std::time::Instant;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston_window::*;
@@ -32,6 +31,7 @@ struct App {
     walls: Vec<Object>,
     renderer: Renderer,
     inputs: Inputs,
+    current_level: u64,
 }
 
 impl App {
@@ -39,10 +39,11 @@ impl App {
         App { 
             running: true, 
             player: Character::new(), 
-            enemies: Vec::new(), 
-            walls: get_wall_layout(0),
+            enemies: get_enemy_layout(1), 
+            walls: get_wall_layout(1),
             renderer: Renderer::new(g),
             inputs: Inputs::new(),
+            current_level: 1,
         }
     }
 
@@ -51,6 +52,11 @@ impl App {
         if self.inputs.should_quit {
             self.running = false;
             return;
+        }
+        if self.inputs.should_load() {
+            self.current_level += 1;
+            self.enemies = get_enemy_layout(self.current_level);
+            self.walls = get_wall_layout(self.current_level);
         }
         if let Some(c) = self.inputs.get_click_if_new() {
             self.enemies.push(Character::at(c));

@@ -6,6 +6,7 @@ pub struct Inputs {
     pub should_quit: bool,
     mouse_down: bool,
     mouse_was_down: bool,
+    should_load: bool,
 }
 
 impl Inputs {
@@ -16,7 +17,16 @@ impl Inputs {
             should_quit: false,
             mouse_down: false,
             mouse_was_down: false,
+            should_load: false,
         }
+    }
+
+    pub fn should_load(&mut self) -> bool {
+        if self.should_load {
+            self.should_load = false;
+            return true;
+        }
+        return false;
     }
 
     pub fn get_click_if_new(&mut self) -> Option<Vec2> {
@@ -54,6 +64,10 @@ impl Inputs {
                 // quit on mac on command + Q
                 if *key == Key::Q && *self.keys.index(Key::Unknown) {
                     self.should_quit = true;
+                }
+                // load on P
+                if *key == Key::P {
+                    self.should_load = true;
                 }
             },
             Button::Mouse(_button) => {
