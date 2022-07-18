@@ -1,3 +1,5 @@
+
+use std::time::Instant;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston_window::*;
 
@@ -57,7 +59,7 @@ impl App {
         for enemy in &mut self.enemies {
             let lookat = self.player.object.pos - enemy.object.pos;
             let distance = lookat.length();
-            if 100.0 < distance && distance < 1000.0 {
+            if 50.0 < distance && distance < 1000.0 && check_visibility(self.player.object.pos, enemy.object.pos, &self.walls) {
                 enemy.update(args.dt, lookat.normalized());
             } else {
                 enemy.update(args.dt, Vec2::new());
@@ -71,11 +73,30 @@ impl App {
 
 // run the piston event handler loop
 fn run_loop(app: &mut App, w: &mut PistonWindow) {
-    let mut events = Events::new(EventSettings::new());
+    let mut events = Events::new(EventSettings {
+        max_fps: 120,
+        ups: 120,
+        swap_buffers: true,
+        bench_mode: false,
+        lazy: false,
+        ups_reset: 0,
+    });
+    let mut title_update_time = Instant::now();
+    let mut update_frames: u64 = 0;
+    let mut render_frames: u64 = 0;
     while let Some(e) = events.next(w) {
         if let Some(args) = e.update_args() {
+            if title_update_time.elapsed().as_secs_f64() >= 1.0 {
+                w.set_title(format!("rougelike {} fps {} ups", render_frames, update_frames));
+                title_update_time = Instant::now();
+                update_frames = 0;
+                render_frames = 0;
+            } else {
+                update_frames += 1;
+            }
             app.update(&args);
         } else if let Some(args) = e.render_args() {
+            render_frames += 1;
             app.renderer.render(&args, &app.player, &app.enemies, &app.walls);
         } else if let Some(args) = e.press_args() {
             app.inputs.press_input(&args);

@@ -12,8 +12,12 @@ impl Vec2 {
         Vec2{x: 0.0, y: 0.0}
     }
 
+    pub fn dot(&self, other: Vec2) -> f64 {
+        return self.x * other.x + self.y * other.y;
+    }
+
     pub fn length(&self) -> f64 {
-        (self.x*self.x + self.y*self.y).sqrt()
+        self.dot(*self).sqrt()
     }
 
     pub fn is_zero(&self) -> bool {
