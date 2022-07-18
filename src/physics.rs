@@ -1,5 +1,7 @@
 use crate::object::*;
 use crate::character::*;
+use crate::utils::*;
+
 enum AABBDirection {
     None,
     Left(f64),
@@ -64,68 +66,68 @@ fn get_collide_direction(a: &Object, b: &Object) -> AABBDirection {
     }   
 }
 
-fn process_possible_collision(a: &mut Object, b: &mut Object) {
-    if !a.velocity.is_zero() || !b.velocity.is_zero() {
-        // adjust velocity for collisions
-        match get_collide_direction(a, b) {
-            AABBDirection::Left(_v) => {
-                if a.velocity.x < 0.0 {a.velocity.x = 0.0}
-                if b.velocity.x > 0.0 {b.velocity.x = 0.0}
-            },
-            AABBDirection::Right(_v) => {
-                if a.velocity.x > 0.0 {a.velocity.x = 0.0}
-                if b.velocity.x < 0.0 {b.velocity.x = 0.0}
-            },
-            AABBDirection::Down(_v) => {
-                if a.velocity.y < 0.0 {a.velocity.y = 0.0}
-                if b.velocity.y > 0.0 {b.velocity.y = 0.0}
-            },
-            AABBDirection::Up(_v) => {
-                if a.velocity.y > 0.0 {a.velocity.y = 0.0}
-                if b.velocity.y < 0.0 {b.velocity.y = 0.0}
-            },
-            _ => {},
-        }  
+fn transfer_momentum(a: &mut Object, b: &mut Object) {
+    // assume objects have equal mass for now
+    let dir_mod = (a.pos - b.pos).normalized() * 0.5;
+    let new_vel = mix(a.velocity, b.velocity, 0.5);
+    a.velocity = new_vel + dir_mod;
+    b.velocity = new_vel - dir_mod;
+}
+
+fn process_possible_spherical_collision(a: &mut Object, b: &mut Object) {
+    if (a.pos - b.pos).length() < (a.size + b.size) * 0.5 {
+        transfer_momentum(a, b);
     }
 }
 
 fn process_possible_static_collision(a: &mut Object, b: &Object) {
     const PUSH_OUT_AMMOUNT: f64 = 0.1;
-    if !a.velocity.is_zero() || !b.velocity.is_zero() {
-        // adjust velocity for collisions
-        match get_collide_direction(a, b) {
-            AABBDirection::Left(_v) => {
-                if a.velocity.x < 0.0 {a.velocity.x = 0.0; a.pos.x += PUSH_OUT_AMMOUNT;}
-            },
-            AABBDirection::Right(_v) => {
-                if a.velocity.x > 0.0 {a.velocity.x = 0.0; a.pos.x -= PUSH_OUT_AMMOUNT;}
-            },
-            AABBDirection::Down(_v) => {
-                if a.velocity.y < 0.0 {a.velocity.y = 0.0; a.pos.y += PUSH_OUT_AMMOUNT;}
-            },
-            AABBDirection::Up(_v) => {
-                if a.velocity.y > 0.0 {a.velocity.y = 0.0; a.pos.y -= PUSH_OUT_AMMOUNT;}
-            },
-            _ => {},
-        }  
-    }
+    // adjust velocity for collisions
+    match get_collide_direction(a, b) {
+        AABBDirection::Left(_v) => {
+            if a.velocity.x < 0.0 { a.velocity.x = 0.0; }
+            a.pos.x += PUSH_OUT_AMMOUNT;
+        },
+        AABBDirection::Right(_v) => {
+            if a.velocity.x > 0.0 { a.velocity.x = 0.0; }
+            a.pos.x -= PUSH_OUT_AMMOUNT;
+        },
+        AABBDirection::Down(_v) => {
+            if a.velocity.y < 0.0 { a.velocity.y = 0.0; }
+            a.pos.y += PUSH_OUT_AMMOUNT;
+        },
+        AABBDirection::Up(_v) => {
+            if a.velocity.y > 0.0 { a.velocity.y = 0.0; }
+            a.pos.y -= PUSH_OUT_AMMOUNT;
+        },
+        _ => {},
+    }  
 }
 
 pub fn process(player: &mut Character, enemies: &mut Vec<Character>, walls: &Vec<Object>) {
-    for wall in walls {
-        // check collision with walls
-        process_possible_static_collision(&mut player.object, wall);
-        for enemy in &mut *enemies {
-            process_possible_static_collision(&mut enemy.object, wall);
+    for i in 0..enemies.len() {
+        let (_, mid_right) = enemies.split_at_mut(i);
+        let (mid, right) = mid_right.split_at_mut(1);
+        let enemy = &mut mid[0];
+
+        // enemies collide with each other
+        for other in right {
+            process_possible_spherical_collision(&mut enemy.object, &mut other.object);
         }
+
+        // enemies collide with player
+        process_possible_spherical_collision(&mut player.object, &mut enemy.object);
+
+        // enemies collide with walls
+        for wall in &*walls {
+            process_possible_static_collision(&mut enemy.object, wall);
+        } 
+
+        enemy.update_apply();
     }
 
-    for enemy in enemies {
-        // check collision with enemies
-        process_possible_collision(&mut player.object, &mut enemy.object);
-   
-        // move enemy (enemies don't colllide with each other)
-        enemy.update_apply();
+    for wall in walls {
+        process_possible_static_collision(&mut player.object, wall);
     }
 
     // finally move player

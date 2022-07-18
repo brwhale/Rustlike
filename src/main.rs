@@ -54,6 +54,15 @@ impl App {
             self.enemies.push(Character::at(c));
         }
         self.player.update(args.dt, self.inputs.get_movement());
+        for enemy in &mut self.enemies {
+            let lookat = self.player.object.pos - enemy.object.pos;
+            let distance = lookat.length();
+            if 100.0 < distance && distance < 1000.0 {
+                enemy.update(args.dt, lookat.normalized());
+            } else {
+                enemy.update(args.dt, Vec2::new());
+            }
+        }
 
         // run physics sim
         process(&mut self.player, &mut self.enemies, &self.walls);

@@ -127,6 +127,10 @@ impl ops::MulAssign<f64> for Vec2 {
     }
 }
 
+pub fn mix(a: Vec2, b: Vec2, level: f64) -> Vec2 {
+    a * (1.0 - level) + b * level
+}
+
 // more convenient map api
 pub struct Map<K: Eq + std::hash::Hash, V: Default> {
     map: HashMap<K, V>,

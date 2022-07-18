@@ -2,8 +2,8 @@ use crate::utils::Vec2;
 
 const SIZE: f64 = 50.0;
 const HALF_SIZE: f64 = 0.5 * SIZE;
-const DRAG_MULTIPLIER: f64 = 0.95;
-const SPEED_MULTIPLIER: f64 = 20.0;
+const DRAG_MULTIPLIER: f64 = 0.92;
+const SPEED_MULTIPLIER: f64 = 30.0;
 
 pub struct Object {
     pub pos: Vec2,
@@ -26,10 +26,10 @@ impl Object {
     pub fn update(&mut self, time: f64, movement: Vec2) {
         let speed = SPEED_MULTIPLIER * time;
         self.velocity += movement * speed;
+        self.velocity *= DRAG_MULTIPLIER;
     }
 
     pub fn apply_update(&mut self) {
         self.pos += self.velocity;
-        self.velocity *= DRAG_MULTIPLIER;
     }
 }
