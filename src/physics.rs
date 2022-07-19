@@ -67,22 +67,29 @@ fn get_collide_direction(a: &Object, b: &Object) -> AABBDirection {
 }
 
 fn transfer_momentum(a: &mut Object, b: &mut Object) {
-    // assume objects have equal mass for now
+    // small fake bounce
     let dir_mod = (a.pos - b.pos).normalized() * 0.5;
+    // assume objects have equal mass for now
     let new_vel = mix(a.velocity, b.velocity, 0.5);
     a.velocity = new_vel + dir_mod;
     b.velocity = new_vel - dir_mod;
 }
 
-fn process_possible_spherical_collision(a: &mut Object, b: &mut Object) {
+fn check_spherical_collision(a: &Object, b: &Object) -> bool {
     if (a.pos - b.pos).length() < (a.size + b.size) * 0.5 {
+        return true;
+    }
+    return false;
+}
+
+fn process_possible_spherical_collision(a: &mut Object, b: &mut Object) {
+    if check_spherical_collision(a, b) {
         transfer_momentum(a, b);
     }
 }
 
 fn process_possible_static_collision(a: &mut Object, b: &Object) {
     const PUSH_OUT_AMMOUNT: f64 = 1.0;
-    // adjust velocity for collisions
     match get_collide_direction(a, b) {
         AABBDirection::Left(_v) => {
             if a.velocity.x < 0.0 { a.velocity.x = 0.0; }
@@ -105,6 +112,7 @@ fn process_possible_static_collision(a: &mut Object, b: &Object) {
 }
 
 pub fn check_visibility(start: Vec2, end: Vec2, walls: &Vec<Object>) -> bool {
+    // simple sdf on the visibility line to test wall positions against
     let segment_vector = end - start;
     for wall in walls {
         let test_vector = wall.pos - start;
@@ -116,11 +124,30 @@ pub fn check_visibility(start: Vec2, end: Vec2, walls: &Vec<Object>) -> bool {
     return true;
 }
 
-pub fn process(player: &mut Character, enemies: &mut Vec<Character>, walls: &Vec<Object>) {
+pub fn process_physics(player: &mut Character, enemies: &mut Vec<Character>, walls: &Vec<Object>, attacks: &mut Vec<Object>) {
+    // process attacks first
+    for attack in &mut *attacks {
+        attack.apply_update();
+    }
+
+    // enemies next
     for i in 0..enemies.len() {
+        // slice the vector so we can avoid double borrow
         let (_, mid_right) = enemies.split_at_mut(i);
         let (mid, right) = mid_right.split_at_mut(1);
         let enemy = &mut mid[0];
+
+        // check for taking damage
+        for attack in &*attacks {
+            if check_spherical_collision(&enemy.object, attack) {
+                enemy.health -= 34.0;
+            }
+        }
+
+        // no point in checking collisions for dead enemies
+        if enemy.health <= 0.0 {
+            continue;
+        }
 
         // enemies collide with each other
         for other in right {
@@ -138,6 +165,10 @@ pub fn process(player: &mut Character, enemies: &mut Vec<Character>, walls: &Vec
         enemy.update_apply();
     }
 
+    // remove any dead enemies
+    enemies.retain(|e| e.health > 0.0);
+
+    // process player-wall collisions
     for wall in walls {
         process_possible_static_collision(&mut player.object, wall);
     }

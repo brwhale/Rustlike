@@ -4,18 +4,19 @@ use crate::object::Object;
 // not much so far
 pub struct Character {
     pub object: Object,
+    pub health: f64,
     // eventually there would be stats and whatever here
 }
 
 impl Character {
     // basic constructor
     pub fn new() -> Character {
-        Character{object: Object::new()}
+        Character{object: Object::new(), health: 100.0}
     }
     
     // make the character centered on a ertain spot
     pub fn at(p: Vec2) -> Character {
-        Character{object: Object::at(p)}
+        Character{object: Object::at(p), health: 100.0}
     }
 
     // per frame update

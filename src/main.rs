@@ -29,6 +29,7 @@ struct App {
     player: Character,
     enemies: Vec<Character>,
     walls: Vec<Object>,
+    attacks: Vec<Object>,
     renderer: Renderer,
     inputs: Inputs,
     current_level: u64,
@@ -41,6 +42,7 @@ impl App {
             player: Character::new(), 
             enemies: get_enemy_layout(1), 
             walls: get_wall_layout(1),
+            attacks: Vec::new(),
             renderer: Renderer::new(g),
             inputs: Inputs::new(),
             current_level: 1,
@@ -53,15 +55,33 @@ impl App {
             self.running = false;
             return;
         }
+
+        // reset level if requested
         if self.inputs.should_load() {
             self.current_level += 1;
             self.enemies = get_enemy_layout(self.current_level);
             self.walls = get_wall_layout(self.current_level);
+            self.attacks = Vec::new();
         }
+
+        // click to place extra enemies
         if let Some(c) = self.inputs.get_click_if_new() {
             self.enemies.push(Character::at(c));
         }
+
+        // update player
         self.player.update(args.dt, self.inputs.get_movement());
+        if self.inputs.get_is_attacking() {
+            self.attacks.push(Object::from(&self.player.object));
+        }
+
+        // update any active attacks
+        for attack in &mut self.attacks {
+            attack.resize(attack.size + 150.0 * args.dt);
+        }
+        self.attacks.retain(|a| a.size < 150.0);
+
+        // update enemies
         for enemy in &mut self.enemies {
             let lookat = self.player.object.pos - enemy.object.pos;
             let distance = lookat.length();
@@ -73,7 +93,7 @@ impl App {
         }
 
         // run physics sim
-        process(&mut self.player, &mut self.enemies, &self.walls);
+        process_physics(&mut self.player, &mut self.enemies, &self.walls, &mut self.attacks);
     }
 }
 
@@ -103,7 +123,7 @@ fn run_loop(app: &mut App, w: &mut PistonWindow) {
             app.update(&args);
         } else if let Some(args) = e.render_args() {
             render_frames += 1;
-            app.renderer.render(&args, &app.player, &app.enemies, &app.walls);
+            app.renderer.render(&args, &app.player, &app.enemies, &app.walls, &app.attacks);
         } else if let Some(args) = e.press_args() {
             app.inputs.press_input(&args);
         } else if let Some(args) = e.release_args() {

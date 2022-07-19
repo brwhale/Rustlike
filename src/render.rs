@@ -17,6 +17,7 @@ pub struct Renderer {
     texture: Texture,
     enemy_texture: Texture,
     wall_texture: Texture,
+    attack_texture: Texture,
 }
 
 impl Renderer {
@@ -26,29 +27,35 @@ impl Renderer {
             texture: get_texture("Resources/player.png"),
             enemy_texture: get_texture("Resources/enemy.png"),
             wall_texture: get_texture("Resources/leaf_wall.png"),
+            attack_texture: get_texture("Resources/attack.png"),
         }
     }
 
+    fn draw(texture: &Texture, obj: &Object, c: Context, g: &mut GlGraphics) {
+        let half_size = obj.size * 0.5;
+        Image::new()
+            .rect(graphics::rectangle::square(obj.pos.x - half_size, obj.pos.y - half_size, obj.size))
+            .draw(texture, &graphics::DrawState::default(), c.transform, g);
+    }
+
     // our main drawing function
-    pub fn render(&mut self, args: &RenderArgs, player: &Character, enemies: &Vec<Character>, walls: &Vec<Object>) {
+    pub fn render(&mut self, args: &RenderArgs, player: &Character, enemies: &Vec<Character>, walls: &Vec<Object>, attacks: &Vec<Object>) {
         self.gl.draw(args.viewport(), |c, g| {
             g.clear_color(BLACK);
             // draw the enemies
             for w in walls {
-                Image::new()
-                    .rect(graphics::rectangle::square(w.pos.x, w.pos.y, w.size))
-                    .draw(&self.wall_texture, &graphics::DrawState::default(), c.transform, g);
+                Renderer::draw(&self.wall_texture, w, c, g);
             }
             // draw the enemies
             for e in enemies {
-                Image::new()
-                    .rect(graphics::rectangle::square(e.object.pos.x, e.object.pos.y, e.object.size))
-                    .draw(&self.enemy_texture, &graphics::DrawState::default(), c.transform, g);
+                Renderer::draw(&self.enemy_texture, &e.object, c, g);
+            }
+            // draw any attacks
+            for a in attacks {
+                Renderer::draw(&self.attack_texture, a, c, g);
             }
             // draw us
-            Image::new()
-                .rect(graphics::rectangle::square(player.object.pos.x, player.object.pos.y, player.object.size))
-                .draw(&self.texture, &graphics::DrawState::default(), c.transform, g);
+            Renderer::draw(&self.texture, &player.object, c, g);
         });
     }
 }
