@@ -1,5 +1,5 @@
 use opengl_graphics::{GlGraphics, Texture};
-use piston_window::*;
+use piston_window::{TextureSettings, Context, RenderArgs, Image, Graphics};
 
 use crate::{Character, object::Object};
 
@@ -21,8 +21,8 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new(g: GlGraphics) -> Renderer {
-        Renderer { 
+    pub fn new(g: GlGraphics) -> Self {
+        Self { 
             gl: g,
             texture: get_texture("Resources/player.png"),
             enemy_texture: get_texture("Resources/enemy.png"),

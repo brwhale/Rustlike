@@ -1,18 +1,18 @@
 use std::{collections::HashMap, ops};
 
 // basic 2d vector type
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Vec2 {
     pub x: f64,
     pub y: f64,
 }
 
 impl Vec2 {
-    pub fn new() -> Vec2 {
-        Vec2{x: 0.0, y: 0.0}
+    pub fn new() -> Self {
+        Self{x: 0.0, y: 0.0}
     }
 
-    pub fn dot(&self, other: Vec2) -> f64 {
+    pub fn dot(&self, other: Self) -> f64 {
         self.x * other.x + self.y * other.y
     }
 
@@ -32,35 +32,35 @@ impl Vec2 {
         }
     }
 
-    pub fn normalized(&self) -> Vec2 {
+    pub fn normalized(&self) -> Self {
         if !self.is_zero() {
             let len = self.length();
-            return Vec2{x:self.x / len, y: self.y / len};
+            return Self{x:self.x / len, y: self.y / len};
         }
         Vec2::new()
     }
 }
 
 impl ops::Add for Vec2 {
-    type Output = Vec2;
+    type Output = Self;
 
-    fn add(self, other: Vec2) -> Vec2 {
+    fn add(self, other: Self) -> Self {
         Vec2 { x: self.x + other.x, y: self.y + other.y }
     }
 }
 
 impl ops::AddAssign for Vec2 {
-    fn add_assign(&mut self, other: Vec2) {
+    fn add_assign(&mut self, other: Self) {
         self.x += other.x;
         self.y += other.y;
     }
 }
 
 impl ops::Add<f64> for Vec2 {
-    type Output = Vec2;
+    type Output = Self;
 
-    fn add(self, other: f64) -> Vec2 {
-        Vec2 { x: self.x + other, y: self.y + other }
+    fn add(self, other: f64) -> Self {
+        Self { x: self.x + other, y: self.y + other }
     }
 }
 
@@ -72,25 +72,25 @@ impl ops::AddAssign<f64> for Vec2 {
 }
 
 impl ops::Sub for Vec2 {
-    type Output = Vec2;
+    type Output = Self;
 
-    fn sub(self, other: Vec2) -> Vec2 {
-        Vec2 { x: self.x - other.x, y: self.y - other.y }
+    fn sub(self, other: Self) -> Self {
+        Self { x: self.x - other.x, y: self.y - other.y }
     }
 }
 
 impl ops::SubAssign for Vec2 {
-    fn sub_assign(&mut self, other: Vec2) {
+    fn sub_assign(&mut self, other: Self) {
         self.x -= other.x;
         self.y -= other.y;
     }
 }
 
 impl ops::Sub<f64> for Vec2 {
-    type Output = Vec2;
+    type Output = Self;
 
-    fn sub(self, other: f64) -> Vec2 {
-        Vec2 { x: self.x - other, y: self.y - other }
+    fn sub(self, other: f64) -> Self {
+        Self { x: self.x - other, y: self.y - other }
     }
 }
 
@@ -102,25 +102,25 @@ impl ops::SubAssign<f64> for Vec2 {
 }
 
 impl ops::Mul for Vec2 {
-    type Output = Vec2;
+    type Output = Self;
 
-    fn mul(self, other: Vec2) -> Vec2 {
-        Vec2 { x: self.x * other.x, y: self.y * other.y }
+    fn mul(self, other: Self) -> Self {
+        Self { x: self.x * other.x, y: self.y * other.y }
     }
 }
 
 impl ops::MulAssign for Vec2 {
-    fn mul_assign(&mut self, other: Vec2) {
+    fn mul_assign(&mut self, other: Self) {
         self.x *= other.x;
         self.y *= other.y;
     }
 }
 
 impl ops::Mul<f64> for Vec2 {
-    type Output = Vec2;
+    type Output = Self;
 
-    fn mul(self, other: f64) -> Vec2 {
-        Vec2 { x: self.x * other, y: self.y * other }
+    fn mul(self, other: f64) -> Self {
+        Self { x: self.x * other, y: self.y * other }
     }
 }
 

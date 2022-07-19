@@ -12,17 +12,17 @@ pub struct Object {
 
 impl Object {
     // basic constructor
-    pub fn new() -> Object {
-        Object{pos: Vec2{x:100.0, y:100.0}, velocity: Vec2::new(), size: SIZE}
+    pub fn new() -> Self {
+        Self{pos: Vec2{x:100.0, y:100.0}, velocity: Vec2::new(), size: SIZE}
     }
     
     // make the Object centered on a ertain spot
-    pub fn at(p: Vec2) -> Object {
-        Object{pos: p, velocity: Vec2::new(), size: SIZE}
+    pub fn at(p: Vec2) -> Self {
+        Self{pos: p, velocity: Vec2::new(), size: SIZE}
     }
 
-    pub fn from(other: &Object) -> Object {
-        Object{pos: other.pos, velocity: other.velocity, size: 0.0}
+    pub fn from(other: &Self) -> Self {
+        Self{pos: other.pos, velocity: other.velocity, size: 0.0}
     }
 
     pub fn resize(&mut self, new_size: f64) {

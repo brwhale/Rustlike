@@ -3,25 +3,25 @@ use opengl_graphics::{GlGraphics, OpenGL};
 use piston_window::*;
 
 mod utils;
-use utils::*;
+use utils::Vec2;
 
 mod object;
-use object::*;
+use object::Object;
 
 mod character;
-use character::*;
+use character::Character;
 
 mod level;
-use level::*;
+use level::{get_enemy_layout, get_wall_layout};
 
 mod physics;
-use physics::*;
+use physics::{process_physics, check_visibility};
 
 mod render;
-use render::*;
+use render::Renderer;
 
 mod input;
-use input::*;
+use input::Inputs;
 
 // container for the game data
 struct App {

@@ -1,5 +1,4 @@
-use crate::utils::Vec2;
-use crate::object::Object;
+use crate::{utils::Vec2, object::Object};
 // this is our basic character struct
 // not much so far
 pub struct Character {
@@ -10,13 +9,13 @@ pub struct Character {
 
 impl Character {
     // basic constructor
-    pub fn new() -> Character {
-        Character{object: Object::new(), health: 100.0}
+    pub fn new() -> Self {
+        Self{object: Object::new(), health: 100.0}
     }
     
     // make the character centered on a ertain spot
-    pub fn at(p: Vec2) -> Character {
-        Character{object: Object::at(p), health: 100.0}
+    pub fn at(p: Vec2) -> Self {
+        Self{object: Object::at(p), health: 100.0}
     }
 
     // per frame update

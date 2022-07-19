@@ -1,4 +1,4 @@
-use crate::{utils::*};
+use crate::utils::{Vec2, Map};
 use piston_window::{Key, Button};
 pub struct Inputs {
     keys: Map<Key, bool>,
@@ -9,8 +9,8 @@ pub struct Inputs {
 }
 
 impl Inputs {
-    pub fn new() -> Inputs {
-        Inputs { 
+    pub fn new() -> Self {
+        Self { 
             keys: Map::new(), 
             cursor: Vec2::new(),
             should_quit: false,

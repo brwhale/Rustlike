@@ -1,6 +1,6 @@
-use crate::object::*;
-use crate::character::*;
-use crate::utils::*;
+use crate::object::Object;
+use crate::character::Character;
+use crate::utils::{Vec2, mix};
 
 enum AABBDirection {
     None,
