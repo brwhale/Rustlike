@@ -13,7 +13,7 @@ fn get_texture(path: &str) -> Texture {
 }
 
 pub struct Renderer {
-    pub(crate) gl: GlGraphics,
+    gl: GlGraphics,
     texture: Texture,
     enemy_texture: Texture,
     wall_texture: Texture,
@@ -31,6 +31,7 @@ impl Renderer {
         }
     }
 
+    // helper to draw  individual objects
     fn draw(texture: &Texture, obj: &Object, c: Context, g: &mut GlGraphics) {
         let half_size = obj.size * 0.5;
         Image::new()
