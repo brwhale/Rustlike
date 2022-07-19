@@ -5,7 +5,7 @@ Basically just a project to learn more rust, maybe it will become a full game so
 
 
 
-##Controls:
+## Controls:
 
 WASD: move around
 
@@ -17,7 +17,7 @@ Mouse Click: place a new enemy at cursor
 
 
 
-##Bugs/Todo:
+## Bugs/Todo:
 
 You can't die
 
