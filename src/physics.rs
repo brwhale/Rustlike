@@ -12,10 +12,7 @@ enum AABBDirection {
 
 impl AABBDirection {
     fn is_none(&self) -> bool {
-        match *self {
-            AABBDirection::None => true,
-            _ => false,
-        }
+        matches!(*self, AABBDirection::None)
     }
 
     fn get_val(&self) -> f64 {
@@ -31,38 +28,38 @@ impl AABBDirection {
 
 fn aabb_y(a: &Object, b: &Object) -> AABBDirection {
     if a.pos.y >= b.pos.y && a.pos.y <= b.pos.y+b.size {
-        return AABBDirection::Down(b.pos.y+b.size - a.pos.y);
+        AABBDirection::Down(b.pos.y+b.size - a.pos.y)
     } else if b.pos.y >= a.pos.y && b.pos.y <= a.pos.y+a.size {
-        return AABBDirection::Up(a.pos.y+a.size - b.pos.y);
+        AABBDirection::Up(a.pos.y+a.size - b.pos.y)
     } else {
-        return AABBDirection::None;
+        AABBDirection::None
     }
 }
 
 fn aabb_x(a: &Object, b: &Object) -> AABBDirection {
     if a.pos.x >= b.pos.x && a.pos.x <= b.pos.x+b.size {
-        return AABBDirection::Left(b.pos.x+b.size - a.pos.x);
+        AABBDirection::Left(b.pos.x+b.size - a.pos.x)
     } else if b.pos.x >= a.pos.x && b.pos.x <= a.pos.x+a.size {
-        return AABBDirection::Right(a.pos.x+a.size - b.pos.x);
+        AABBDirection::Right(a.pos.x+a.size - b.pos.x)
     } else {
-        return AABBDirection::None;
+        AABBDirection::None
     }
 }
 
 fn get_collide_direction(a: &Object, b: &Object) -> AABBDirection {
-    let ytest = aabb_y(&a, &b);
+    let ytest = aabb_y(a, b);
     if ytest.is_none() {
         return AABBDirection::None;
     }
-    let xtest = aabb_x(&a, &b);
+    let xtest = aabb_x(a, b);
     if xtest.is_none() {
         return AABBDirection::None;
     }
 
     if xtest.get_val() < ytest.get_val() {
-        return xtest;
+        xtest
     } else {
-        return ytest;
+        ytest
     }   
 }
 
@@ -79,7 +76,7 @@ fn check_spherical_collision(a: &Object, b: &Object) -> bool {
     if (a.pos - b.pos).length() < (a.size + b.size) * 0.5 {
         return true;
     }
-    return false;
+    false
 }
 
 fn process_possible_spherical_collision(a: &mut Object, b: &mut Object) {
@@ -121,7 +118,7 @@ pub fn check_visibility(start: Vec2, end: Vec2, walls: &Vec<Object>) -> bool {
             return false;
         }
     }
-    return true;
+    true
 }
 
 pub fn process_physics(player: &mut Character, enemies: &mut Vec<Character>, walls: &Vec<Object>, attacks: &mut Vec<Object>) {

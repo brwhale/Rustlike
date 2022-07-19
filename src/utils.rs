@@ -13,7 +13,7 @@ impl Vec2 {
     }
 
     pub fn dot(&self, other: Vec2) -> f64 {
-        return self.x * other.x + self.y * other.y;
+        self.x * other.x + self.y * other.y
     }
 
     pub fn length(&self) -> f64 {
@@ -37,7 +37,7 @@ impl Vec2 {
             let len = self.length();
             return Vec2{x:self.x / len, y: self.y / len};
         }
-        return Vec2::new();
+        Vec2::new()
     }
 }
 

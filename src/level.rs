@@ -28,7 +28,7 @@ pub fn get_wall_layout(level: u64) -> Vec<Object> {
         draw_line(pos, pos + angle * distance, &mut vec);
     }
 
-    return vec;
+    vec
 }
 
 pub fn get_enemy_layout(level: u64) -> Vec<Character> {
@@ -40,5 +40,5 @@ pub fn get_enemy_layout(level: u64) -> Vec<Character> {
         vec.push(Character::at(pos));
     }
 
-    return vec;
+    vec
 }

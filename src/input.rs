@@ -25,7 +25,7 @@ impl Inputs {
             *key = false;
             return true;
         }
-        return false;
+        false
     }
 
     pub fn get_is_attacking(&mut self) -> bool {
@@ -34,7 +34,7 @@ impl Inputs {
             *key = false;
             return true;
         }
-        return false;
+        false
     }
 
     pub fn get_click_if_new(&mut self) -> Option<Vec2> {
@@ -43,7 +43,7 @@ impl Inputs {
         if self.mouse_down && was_up {
             return Some(self.cursor);
         }
-        return None;
+        None
     }
 
     pub fn get_movement(&mut self) -> Vec2 {
@@ -61,7 +61,7 @@ impl Inputs {
             movement.x += 1.0;
         }
         movement.normalize();
-        return movement;
+        movement
     }
 
     // event handler for presses
