@@ -3,7 +3,9 @@ Aspiring Roguelike in Rust
 
 Basically just a project to learn more rust, maybe it will become a full game someday
 
-Controls:
+
+
+##Controls:
 
 WASD: move around
 
@@ -14,7 +16,8 @@ P: next level
 Mouse Click: place a new enemy at cursor
 
 
-Bugs/Todo:
+
+##Bugs/Todo:
 
 You can't die
 
