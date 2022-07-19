@@ -1,6 +1,6 @@
 use std::time::Instant;
 use opengl_graphics::{GlGraphics, OpenGL};
-use piston_window::*;
+use piston_window::{PistonWindow, Window, AdvancedWindow, UpdateArgs, UpdateEvent, PressEvent, ReleaseEvent, RenderEvent, MouseCursorEvent, Events, EventSettings, WindowSettings};
 
 mod utils;
 use utils::Vec2;
